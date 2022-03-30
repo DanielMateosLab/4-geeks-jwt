@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, current_user
 from api.utils import APIException, generate_sitemap
 from api.models import db, User
 from api.routes import api
@@ -47,6 +47,11 @@ app.register_blueprint(api, url_prefix='/api')
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.get(identity)
+
 # generate sitemap with all your endpoints
 @app.route('/')
 def sitemap():
@@ -71,15 +76,12 @@ def create_user():
     db.session.commit()
 
     return jsonify({"msg": f"Successfully created user with email {user}"})
+    # TODO: redirect to /token
     
 @app.route("/private")
 @jwt_required()
 def private():
-    # Access the identity of the current user with get_jwt_identity
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    
-    return jsonify(user.serialize()), 200
+    return jsonify(current_user.serialize()), 200
 
 @app.route("/token", methods=["POST"])
 def create_token():
