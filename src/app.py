@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from api.utils import APIException, generate_sitemap
 from api.models import db, User
 from api.routes import api
@@ -72,6 +72,14 @@ def create_user():
 
     return jsonify({"msg": f"Successfully created user with email {user}"})
     
+@app.route("/private")
+@jwt_required()
+def private():
+    # Access the identity of the current user with get_jwt_identity
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    return jsonify(user.serialize()), 200
 
 @app.route("/token", methods=["POST"])
 def create_token():
