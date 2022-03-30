@@ -54,6 +54,24 @@ def sitemap():
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
+@app.route("/users", methods=["POST"])
+def create_user():
+    email = request.json.get("email")
+    password = request.json.get("password")
+
+    user = User.query.filter_by(email=email).first()
+    if user != None:
+        return jsonify({ "msg": "User already exists" }), 400
+
+    if email == None or password == None:
+        return jsonify({ "msg": "Email and password are required"}), 400
+
+    user = User(email=email, password=password)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"msg": f"Successfully created user with email {user}"})
+    
 
 @app.route("/token", methods=["POST"])
 def create_token():
