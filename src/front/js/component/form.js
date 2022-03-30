@@ -18,12 +18,12 @@ export const Form = () => {
     setError("");
 
     try {
-      const res = await fetch("/api/token", {
+      const res = await fetch(process.env.BACKEND_URL + "/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: values,
+        body: JSON.stringify(values),
       });
       const { token, msg } = await res.json();
 
