@@ -1,3 +1,12 @@
 /* 
     General Styles used on every website (Don't Repeat Yourself)
 */
+h1 {
+  margin-bottom: 2rem;
+}
+main {
+  padding: 4rem 0;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
