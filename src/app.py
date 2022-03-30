@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify, url_for, send_from_directory, redirect
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -75,8 +75,12 @@ def create_user():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"msg": f"Successfully created user with email {user}"})
-    # TODO: redirect to /token
+    access_token = create_access_token(identity=user.id)
+    return jsonify({
+        "msg": f"Successfully created user with email {user}",
+        "token": access_token
+    })
+    
     
 @app.route("/private")
 @jwt_required()
