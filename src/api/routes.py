@@ -10,12 +10,13 @@ def create_user():
     email = request.json.get("email")
     password = request.json.get("password")
 
+    # Basic validation
+    if email == None or len(email) < 1 or password == None or len(password) < 1:
+        return jsonify({ "msg": "Email and password are required"}), 400
+
     user = User.query.filter_by(email=email).first()
     if user != None:
         return jsonify({ "msg": "User already exists" }), 400
-
-    if email == None or password == None:
-        return jsonify({ "msg": "Email and password are required"}), 400
 
     user = User(email=email, password=password)
     db.session.add(user)
