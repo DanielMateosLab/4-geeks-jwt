@@ -1,49 +1,57 @@
+import { fetchPost } from "../utils";
+
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+  return {
+    store: {
+      user: null,
+    },
+    actions: {
+      saveToken(token) {
+        localStorage.setItem("jwt", token);
+      },
+      /** Tries to log in with the provided credentials.
+       * Returns error if present.
+       * Saves the token and fetches the user if login success. */
+      async login(credentials) {
+        try {
+          const res = await fetchPost("/token", credentials);
+          const { token, msg } = await res.json();
 
-			getMessage: () => {
-				// fetching data from the backend
-				fetch(process.env.BACKEND_URL + "/api/hello")
-					.then(resp => resp.json())
-					.then(data => setStore({ message: data.message }))
-					.catch(error => console.log("Error loading message from backend", error));
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+          if (!res.ok) {
+            return msg;
+          }
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+          getActions().saveToken(token);
+          await getActions().getAuthenticatedUser();
+        } catch (error) {
+          console.error(error);
+          return "Could not log in, try again later.";
+        }
+      },
+      logout() {
+        localStorage.removeItem("jwt");
+        setStore({ user: null });
+      },
+      async getAuthenticatedUser() {
+        try {
+          const token = localStorage.getItem("jwt");
+          if (!token) return;
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+          const res = await fetch(process.env.BACKEND_URL + "/private", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!res.ok) throw new Error("Token is not valid.");
+
+          const user = await res.json();
+          setStore({ user });
+        } catch (err) {
+          console.error(err);
+          localStorage.removeItem("jwt");
+        }
+      },
+    },
+  };
 };
 
 export default getState;
