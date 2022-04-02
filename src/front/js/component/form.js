@@ -2,7 +2,9 @@ import React, { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import { Context } from "../store/appContext";
 
-export const Form = () => {
+export const Form = ({ login, signup }) => {
+  const submitButtonText = login ? "Log in" : "Sign up";
+
   const { actions } = useContext(Context);
   const [formValues, setValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -21,7 +23,10 @@ export const Form = () => {
     setError("");
 
     event.preventDefault();
-    const error = await actions.login(formValues);
+
+    let error = null;
+
+    error = await actions.authenticate(formValues, signup);
 
     error ? setError(error) : history.push("/");
   };
@@ -54,7 +59,7 @@ export const Form = () => {
         />
       </div>
       <button className="btn btn-primary" type="submit">
-        Log in
+        {submitButtonText}
       </button>
       {error && <p className="text-danger mt-3">{error}</p>}
     </form>

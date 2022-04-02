@@ -4,14 +4,15 @@ import { Form } from "../component/form";
 import { useRedirectAuthenticated } from "../utils";
 
 export const Login = () => {
-  useRedirectAuthenticated()
-  
+  useRedirectAuthenticated();
+
   return (
-  <main>
-    <h1>Login</h1>
-    <p>
-      Don't have an account yet? <Link to="/signup">Sign up!</Link>
-    </p>
-    <Form />
-  </main>
-)};
+    <main>
+      <h1>Login</h1>
+      <p>
+        Don't have an account yet? <Link to="/signup">Sign up!</Link>
+      </p>
+      <Form login />
+    </main>
+  );
+};

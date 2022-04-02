@@ -9,12 +9,16 @@ const getState = ({ getStore, getActions, setStore }) => {
       saveToken(token) {
         localStorage.setItem("jwt", token);
       },
-      /** Tries to log in with the provided credentials.
+      /**
+       * Tries to log in with the provided credentials, creating a new user if singup = true.
+       * Saves the token and fetches the user if api request success.
        * Returns error if present.
-       * Saves the token and fetches the user if login success. */
-      async login(credentials) {
+       */
+      async authenticate(credentials, signup = false) {
+        const endpoint = signup ? "/users" : "/token";
+
         try {
-          const res = await fetchPost("/token", credentials);
+          const res = await fetchPost(endpoint, credentials);
           const { token, msg } = await res.json();
 
           if (!res.ok) {
@@ -25,7 +29,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           await getActions().getAuthenticatedUser();
         } catch (error) {
           console.error(error);
-          return "Could not log in, try again later.";
+          return `Could not ${signup ? "sign up" : "log in"}, try again later.`;
         }
       },
       logout() {
