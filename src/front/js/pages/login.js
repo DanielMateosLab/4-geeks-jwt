@@ -1,8 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Form } from "../component/form";
+import { useRedirectAuthenticated } from "../utils";
 
-export const Login = () => (
+export const Login = () => {
+  useRedirectAuthenticated()
+  
+  return (
   <main>
     <h1>Login</h1>
     <p>
@@ -10,4 +14,4 @@ export const Login = () => (
     </p>
     <Form />
   </main>
-);
+)};

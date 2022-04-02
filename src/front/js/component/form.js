@@ -1,41 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 export const Form = () => {
-  const [values, setValues] = useState({ email: "", password: "" });
+  const { actions } = useContext(Context);
+  const [formValues, setValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const history = useHistory();
 
   const handleChange = (event) => {
     const { value, id } = event.target;
 
     setValues({
-      ...values,
+      ...formValues,
       [id]: value,
     });
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
     setError("");
 
-    try {
-      const res = await fetch(process.env.BACKEND_URL + "/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      const { token, msg } = await res.json();
+    event.preventDefault();
+    const error = await actions.login(formValues);
 
-      if (!res.ok) {
-        setError(msg);
-      }
-
-      sessionStorage.setItem("jwt", token);
-    } catch (error) {
-      console.error(error);
-      setError("Could not log in, try again later.");
-    }
+    error ? setError(error) : history.push("/");
   };
 
   return (
@@ -47,7 +35,7 @@ export const Form = () => {
         <input
           id="email"
           onChange={handleChange}
-          value={values.email}
+          value={formValues.email}
           type="email"
           className="form-control"
           placeholder="jhon_doe@mailing.com"
@@ -60,7 +48,7 @@ export const Form = () => {
         <input
           id="password"
           onChange={handleChange}
-          value={values.password}
+          value={formValues.password}
           type="password"
           className="form-control"
         />
