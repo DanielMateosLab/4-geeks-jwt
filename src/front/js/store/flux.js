@@ -1,6 +1,6 @@
 import { fetchPost } from "../utils";
 
-const getState = ({ getStore, getActions, setStore }) => {
+const getState = ({ _, getActions, setStore }) => {
   return {
     store: {
       user: null,
@@ -15,7 +15,7 @@ const getState = ({ getStore, getActions, setStore }) => {
        * Returns error if present.
        */
       async authenticate(credentials, signup = false) {
-        const endpoint = signup ? "/users" : "/token";
+        const endpoint = signup ? "/api/users" : "/api/token";
 
         try {
           const res = await fetchPost(endpoint, credentials);
@@ -41,7 +41,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           const token = localStorage.getItem("jwt");
           if (!token) return;
 
-          const res = await fetch(process.env.BACKEND_URL + "/private", {
+          const res = await fetch(process.env.BACKEND_URL + "/api/private", {
             headers: { Authorization: `Bearer ${token}` },
           });
 
